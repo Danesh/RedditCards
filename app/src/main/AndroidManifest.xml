@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.danesh.redditcards" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".MyActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="org.cyanogenmod.launcher.home.api.provider.CmHomeContentProvider"
+            android:authorities="com.example.danesh.redditcards.cmhomeapi"
+            android:enabled="true"
+            android:exported="true"
+            android:readPermission="org.cyanogenmod.launcher.home.api.FEED_READ"
+            android:writePermission="org.cyanogenmod.launcher.home.api.FEED_WRITE" />
+
+        <service
+            android:name=".NotificationService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".CardReceiver">
+            <intent-filter>
+                <action android:name="org.cyanogenmod.launcher.home.api.CARD_DELETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
