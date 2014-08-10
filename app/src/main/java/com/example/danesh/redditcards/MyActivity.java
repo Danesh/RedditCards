@@ -42,9 +42,9 @@ public class MyActivity extends Activity {
                     JsonObject data = jsonObject.getAsJsonObject("data");
                     if (data != null) {
                         JsonArray children = data.getAsJsonArray("children");
+                        boolean timeSaved = false;
                         if (children != null) {
-                            for (int i = 0; i < children.size(); i++) {
-                                JsonElement object = children.get(i);
+                            for (JsonElement object : children) {
                                 JsonObject childData = object.getAsJsonObject().getAsJsonObject("data");
                                 if (childData != null) {
                                     JsonPrimitive title = childData.getAsJsonPrimitive("title");
@@ -58,8 +58,9 @@ public class MyActivity extends Activity {
                                     if (createdTime <= lastTime) {
                                         break;
                                     }
-                                    if (i == 0) {
+                                    if (!timeSaved) {
                                         prefs.edit().putLong("last_time", createdTime).apply();
+                                        timeSaved = true;
                                     }
                                     DataCard card = new DataCard(title.getAsString(), new Date(created.getAsLong()));
                                     card.addDataCardImage(Uri.parse(url.getAsString()));
