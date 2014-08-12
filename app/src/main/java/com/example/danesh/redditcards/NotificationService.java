@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.cyanogenmod.launcher.home.api.cards.DataCard;
 import org.cyanogenmod.launcher.home.api.cards.DataCardImage;
@@ -126,9 +127,11 @@ public class NotificationService extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification statusBarNotification) {
         for (DataCard cards : DataCard.getAllPublishedDataCards(this)) {
-            if (cards.getInternalId().equals(getIdForNotification(statusBarNotification))) {
-                cards.unpublish(this);
-                break;
+            if (cards.getInternalId() != null) {
+                if (cards.getInternalId().equals(getIdForNotification(statusBarNotification))) {
+                    cards.unpublish(this);
+                    break;
+                }
             }
         }
     }
