@@ -16,8 +16,8 @@ import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.cyanogenmod.launcher.home.api.cards.DataCard;
-import org.cyanogenmod.launcher.home.api.cards.DataCardImage;
+import org.cyanogenmod.launcher.home.api.cards.CardData;
+import org.cyanogenmod.launcher.home.api.cards.CardDataImage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -64,8 +64,8 @@ public class NotificationService extends NotificationListenerService {
             return;
         }
 
-        DataCard card = null;
-        for (DataCard publishedCard : DataCard.getAllPublishedDataCards(this)) {
+        CardData card = null;
+        for (CardData publishedCard : CardData.getAllPublishedCardDatas(this)) {
             if (TextUtils.equals(publishedCard.getInternalId(), getIdForNotification(statusBarNotification))) {
                 card = publishedCard;
                 card.setTitle(notificationTitle.toString());
@@ -74,13 +74,13 @@ public class NotificationService extends NotificationListenerService {
             }
         }
         if (card == null) {
-            card = new DataCard(notificationTitle.toString(), new Date(notification.when));
+            card = new CardData(notificationTitle.toString(), new Date(notification.when));
         }
         card.setBodyText(String.valueOf(message));
         if (notification.extras.containsKey(Notification.EXTRA_PICTURE)) {
-            DataCardImage cardImage = new DataCardImage(card);
+            CardDataImage cardImage = new CardDataImage(card);
             cardImage.setImage((android.graphics.Bitmap) notification.extras.getParcelable(Notification.EXTRA_PICTURE));
-            card.addDataCardImage(cardImage);
+            card.addCardDataImage(cardImage);
             card.setBodyText(null);
         }
         try {
@@ -126,7 +126,7 @@ public class NotificationService extends NotificationListenerService {
 
     @Override
     public void onNotificationRemoved(StatusBarNotification statusBarNotification) {
-        for (DataCard cards : DataCard.getAllPublishedDataCards(this)) {
+        for (CardData cards : CardData.getAllPublishedCardDatas(this)) {
             if (cards.getInternalId() != null) {
                 if (cards.getInternalId().equals(getIdForNotification(statusBarNotification))) {
                     cards.unpublish(this);

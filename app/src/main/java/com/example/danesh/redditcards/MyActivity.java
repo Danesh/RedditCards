@@ -15,8 +15,7 @@ import com.google.gson.JsonPrimitive;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-import org.cyanogenmod.launcher.home.api.cards.DataCard;
-import org.cyanogenmod.launcher.home.api.cards.DataCardImage;
+import org.cyanogenmod.launcher.home.api.cards.CardData;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -33,11 +32,12 @@ public class MyActivity extends Activity {
 
     public void refresh(View v) {
         v.setEnabled(false);
-        Ion.with(this).load("http://www.reddit.com/r/pics/.json?sort=new&limit=5").asJsonObject().setCallback(new FutureCallback<com.google.gson.JsonObject>() {
+        Ion.with(this).load("http://www.reddit.com/r/pics/.json?sort=new&limit=20").asJsonObject().setCallback(new FutureCallback<com.google.gson.JsonObject>() {
             @Override
             public void onCompleted(Exception e, com.google.gson.JsonObject jsonObject) {
                 final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 long lastTime = prefs.getLong("last_time", 0);
+                int cardCount = 0;
                 if (jsonObject != null) {
                     JsonObject data = jsonObject.getAsJsonObject("data");
                     if (data != null) {
@@ -45,6 +45,9 @@ public class MyActivity extends Activity {
                         boolean timeSaved = false;
                         if (children != null) {
                             for (JsonElement object : children) {
+                                if (cardCount >= 10) {
+                                    break;
+                                }
                                 JsonObject childData = object.getAsJsonObject().getAsJsonObject("data");
                                 if (childData != null) {
                                     JsonPrimitive title = childData.getAsJsonPrimitive("title");
@@ -62,13 +65,14 @@ public class MyActivity extends Activity {
                                         prefs.edit().putLong("last_time", createdTime).apply();
                                         timeSaved = true;
                                     }
-                                    DataCard card = new DataCard(title.getAsString(), new Date(created.getAsLong()));
-                                    card.addDataCardImage(Uri.parse(url.getAsString()));
+                                    CardData card = new CardData(title.getAsString(), new Date(created.getAsLong()));
+                                    card.addCardDataImage(Uri.parse(url.getAsString()));
                                     card.setContentSourceImage(Uri.parse("https://openmedia.ca/sites/openmedia.ca/files/reddit-logo2.png"));
                                     card.setAvatarImage(card.getContentSourceImageUri());
                                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.reddit.com" + permaLink.getAsString()));
                                     card.setCardClickIntent(intent, false);
                                     card.publish(getApplicationContext());
+                                    cardCount++;
                                 }
                             }
                         }
