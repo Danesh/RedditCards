@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.cyanogenmod.launcher.home.api.cards.DataCard;
 import org.cyanogenmod.launcher.home.api.cards.DataCardImage;
@@ -65,7 +66,7 @@ public class NotificationService extends NotificationListenerService {
 
         DataCard card = null;
         for (DataCard publishedCard : DataCard.getAllPublishedDataCards(this)) {
-            if (TextUtils.equals(publishedCard.getInternalId(), String.valueOf(statusBarNotification.getId()))) {
+            if (TextUtils.equals(publishedCard.getInternalId(), getIdForNotification(statusBarNotification))) {
                 card = publishedCard;
                 card.setTitle(notificationTitle.toString());
                 card.setContentCreatedDate(new Date(notification.when));
@@ -114,16 +115,23 @@ public class NotificationService extends NotificationListenerService {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        card.setInternalId(String.valueOf(statusBarNotification.getId()));
+        card.setInternalId(getIdForNotification(statusBarNotification));
         card.publish(this);
+    }
+
+    private String getIdForNotification(StatusBarNotification statusBarNotification) {
+        return statusBarNotification.getPackageName() 
+               + "/" + statusBarNotification.getId();
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification statusBarNotification) {
         for (DataCard cards : DataCard.getAllPublishedDataCards(this)) {
-            if (cards.getInternalId().equals(String.valueOf(statusBarNotification.getId()))) {
-                cards.unpublish(this);
-                break;
+            if (cards.getInternalId() != null) {
+                if (cards.getInternalId().equals(getIdForNotification(statusBarNotification))) {
+                    cards.unpublish(this);
+                    break;
+                }
             }
         }
     }
