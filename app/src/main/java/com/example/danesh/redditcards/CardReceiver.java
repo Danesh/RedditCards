@@ -18,4 +18,7 @@ public class CardReceiver extends CmHomeCardChangeReceiver {
         i.putExtra(DELETE_ID, cardDeletedInfo.getInternalId());
         context.sendBroadcast(i);
     }
+
+    @Override protected void onRefreshRequested(Context context) {
+    }
 }
